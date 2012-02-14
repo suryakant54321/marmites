@@ -12,7 +12,7 @@ def plotTIMESERIES(DateInput, P, PT, PE, Pe, dPOND, POND, Ro, Eu, Tu, Eg, Tg, S,
 
     INPUTS
             STATE VARIABLES
-                TS              Time step
+                SP              Stress period
                 P               Daily rainfall
                 PT              Daily potential transpiration
                 PE              Daily potential evaporation
@@ -389,7 +389,7 @@ def plotTIMESERIES(DateInput, P, PT, PE, Pe, dPOND, POND, Ro, Eu, Tu, Eg, Tg, S,
 
 ##################
 
-def plotLAYER(TS, Date, JD, ncol, nrow, nlay, nplot, V, cmap, CBlabel, msg, plt_title, MM_ws, interval_type = 'arange', interval_diff = 1, interval_num = 1, Vmax = 0, Vmin = 0, fmt = '%.2f', contours = False, ntick = 1):
+def plotLAYER(SP, Date, JD, ncol, nrow, nlay, nplot, V, cmap, CBlabel, msg, plt_title, MM_ws, interval_type = 'arange', interval_diff = 1, interval_num = 1, Vmax = 0, Vmin = 0, fmt = '%.2f', contours = False, ntick = 1):
 
 
     # TODO put option to select axes tick as row/col index from MODFLOW or real coordinates (in this last case create it)
@@ -405,7 +405,7 @@ def plotLAYER(TS, Date, JD, ncol, nrow, nlay, nplot, V, cmap, CBlabel, msg, plt_
     ax = []
     fig = plt.figure(num=None, figsize=(11.7, 8.27), dpi=30)
     if isinstance(Date, float):
-        fig.suptitle(plt_title + '\nDay %s, DOY %s, MF TS %s' % (mpl.dates.num2date(Date).isoformat()[:10], JD, TS+1))
+        fig.suptitle(plt_title + '\nDay %s, DOY %s, MF SP %s' % (mpl.dates.num2date(Date).isoformat()[:10], JD, SP+1))
     else:
         fig.suptitle(plt_title)
     CB_test = False
@@ -444,14 +444,14 @@ def plotLAYER(TS, Date, JD, ncol, nrow, nlay, nplot, V, cmap, CBlabel, msg, plt_
     plt.setp(CB.ax.get_yticklabels(), fontsize = 7)
     del val
     if isinstance(Date, float):
-        plt_export_fn = os.path.join(MM_ws, '_plt_' + plt_title + '_TS%05d' + '.png') % (TS+1)
+        plt_export_fn = os.path.join(MM_ws, '_plt_' + plt_title + '_SP%05d' + '.png') % (SP+1)
     else:
         plt_export_fn = os.path.join(MM_ws, '_plt_' + plt_title + '.png')
     plt.savefig(plt_export_fn)
 #    plt.show()
     plt.clf()
     plt.close('all')
-    del fig, ax, TS, ncol, nrow, nlay, nplot, V, cmap, CBlabel, msg, plt_title, MM_ws, interval_type, interval_diff, interval_num, Vmax, Vmin, fmt
+    del fig, ax, SP, ncol, nrow, nlay, nplot, V, cmap, CBlabel, msg, plt_title, MM_ws, interval_type, interval_diff, interval_num, Vmax, Vmin, fmt
 
 ##    #Make a cross-sectional figure of layers 1, 2, and 10
 ##    plt.figure()

@@ -508,19 +508,19 @@ class MF():
 
 ####################################
 
-    def ppMFtime(self,MM_ws, MF_ws, inputDate_fn, inputZON_dTS_RF_fn, inputZON_dTS_PT_fn, inputZON_dTS_RFe_fn, inputZON_dTS_PE_fn, inputZON_dTS_E0_fn, NMETEO, NVEG, NSOIL):
+    def ppMFtime(self,MM_ws, MF_ws, inputDate_fn, inputZON_dSP_RF_fn, inputZON_dSP_PT_fn, inputZON_dSP_RFe_fn, inputZON_dSP_PE_fn, inputZON_dSP_E0_fn, NMETEO, NVEG, NSOIL):
 
         ''' RF analysis to define automatically nper/perlen/nstp
         Daily RF>0 creates a nper
         Succesive days with RF=0 are averaged (PT, PE, E0) to a user-input maximum # of days'''
 
-        def ExportResults1(TS, outFileExport):
+        def ExportResults1(SP, outFileExport):
             """
             Write the processed data in a open txt file readable by  MARMITES
             INPUT:      output flux time series and open file
             """
-            for i in range(len(TS)):
-                out_line =  '%14.9G' %TS[i],'\n'
+            for i in range(len(SP)):
+                out_line =  '%14.9G' %SP[i],'\n'
                 for l in out_line:
                     outFileExport.write(l)
 
@@ -531,15 +531,15 @@ class MF():
         d = []
         for l in inputFile:
             d.append(l)
-        inputFileRF = MMproc.readFile(MM_ws, inputZON_dTS_RF_fn)
+        inputFileRF = MMproc.readFile(MM_ws, inputZON_dSP_RF_fn)
         RF_d = np.zeros([NMETEO, len(d)])
-        inputFilePT = MMproc.readFile(MM_ws, inputZON_dTS_PT_fn)
-        inputFileRFe = MMproc.readFile(MM_ws, inputZON_dTS_RFe_fn)
+        inputFilePT = MMproc.readFile(MM_ws, inputZON_dSP_PT_fn)
+        inputFileRFe = MMproc.readFile(MM_ws, inputZON_dSP_RFe_fn)
         PT_d = np.zeros([NMETEO, NVEG, len(d)])
         RFe_d = np.zeros([NMETEO, NVEG, len(d)])
-        inputFilePE = MMproc.readFile(MM_ws, inputZON_dTS_PE_fn)
+        inputFilePE = MMproc.readFile(MM_ws, inputZON_dSP_PE_fn)
         PE_d = np.zeros([NMETEO, NSOIL, len(d)])
-        inputFileE0 = MMproc.readFile(MM_ws, inputZON_dTS_E0_fn)
+        inputFileE0 = MMproc.readFile(MM_ws, inputZON_dSP_E0_fn)
         E0_d = np.zeros([NMETEO, len(d)])
         for n in range(NMETEO):
             for t in range(len(d)):
@@ -700,28 +700,28 @@ class MF():
                             PE_stp[n,s,sum(nstp[0:per])+stp] += PE_d[n,s,tstart:tend].sum()/(self.perlen[per]/self.nstp[per])
                         E0_stp[n,sum(nstp[0:per])+stp] += E0_d[n,tstart:tend].sum()/(self.perlen[per]/self.nstp[per])
 
-        self.inputZON_TS_RF_fn = "inputZONRF_stp.txt"
-        self.inputZONRF_fn = os.path.join(MM_ws, self.inputZON_TS_RF_fn)
+        self.inputZON_SP_RF_fn = "inputZONRF_stp.txt"
+        self.inputZONRF_fn = os.path.join(MM_ws, self.inputZON_SP_RF_fn)
         inputZONRF = open(self.inputZONRF_fn, 'w')
         inputZONRF.write('#\n')
 
-        self.inputZON_TS_PT_fn = "inputZONPT_stp.txt"
-        self.inputZONPT_fn = os.path.join(MM_ws, self.inputZON_TS_PT_fn)
+        self.inputZON_SP_PT_fn = "inputZONPT_stp.txt"
+        self.inputZONPT_fn = os.path.join(MM_ws, self.inputZON_SP_PT_fn)
         inputZONPT = open(self.inputZONPT_fn, 'w')
         inputZONPT.write('#\n')
 
-        self.inputZON_TS_RFe_fn = "inputZONRFe_stp.txt"
-        self.inputZONRFe_fn = os.path.join(MM_ws, self.inputZON_TS_RFe_fn)
+        self.inputZON_SP_RFe_fn = "inputZONRFe_stp.txt"
+        self.inputZONRFe_fn = os.path.join(MM_ws, self.inputZON_SP_RFe_fn)
         inputZONRFe = open(self.inputZONRFe_fn, 'w')
         inputZONRFe.write('#\n')
 
-        self.inputZON_TS_PE_fn = "inputZONPE_stp.txt"
-        self.inputZONPE_fn = os.path.join(MM_ws, self.inputZON_TS_PE_fn)
+        self.inputZON_SP_PE_fn = "inputZONPE_stp.txt"
+        self.inputZONPE_fn = os.path.join(MM_ws, self.inputZON_SP_PE_fn)
         inputZONPE = open(self.inputZONPE_fn, 'w')
         inputZONPE.write('#\n')
 
-        self.inputZON_TS_E0_fn = "inputZONE0_stp.txt"
-        self.inputZONE0_fn = os.path.join(MM_ws, self.inputZON_TS_E0_fn)
+        self.inputZON_SP_E0_fn = "inputZONE0_stp.txt"
+        self.inputZONE0_fn = os.path.join(MM_ws, self.inputZON_SP_E0_fn)
         inputZONE0 = open(self.inputZONE0_fn, 'w')
         inputZONE0.write('#\n')
 

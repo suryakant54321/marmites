@@ -98,7 +98,7 @@ try:
     MMsurf_ws = inputFile[l].strip()
     l += 1
     # METEO TIME SERIES file name
-    inputFile_TS_fn = inputFile[l].strip()
+    inputFile_SP_fn = inputFile[l].strip()
     l += 1
     # METEO/VEGETATION/SOIL/WATER PARAMETERS file name
     inputFile_PAR_fn = inputFile[l].strip()
@@ -188,7 +188,7 @@ try:
     if MMsurf_yn>0:
         durationMMsurf = 0.0
         timestartMMsurf = mpl.dates.datestr2num(mpl.dates.datetime.datetime.today().isoformat())
-        outMMsurf_fn = startMMsurf.MMsurf(MMsurf_ws, inputFile_TS_fn, inputFile_PAR_fn, outputFILE_fn, MM_ws, outMMsurf_fn, MMsurf_plot)
+        outMMsurf_fn = startMMsurf.MMsurf(MMsurf_ws, inputFile_SP_fn, inputFile_PAR_fn, outputFILE_fn, MM_ws, outMMsurf_fn, MMsurf_plot)
         timeendMMsurf = mpl.dates.datestr2num(mpl.dates.datetime.datetime.today().isoformat())
         durationMMsurf=(timeendMMsurf-timestartMMsurf)
     inputFile = MMproc.readFile(MM_ws,outMMsurf_fn)
@@ -207,15 +207,15 @@ try:
         l += 1
         inputDate_fn = str(inputFile[l].strip())
         l += 1
-        inputZON_dTS_RF_fn = str(inputFile[l].strip())
+        inputZON_dSP_RF_fn = str(inputFile[l].strip())
         l += 1
-        inputZON_dTS_PT_fn = str(inputFile[l].strip())
+        inputZON_dSP_PT_fn = str(inputFile[l].strip())
         l += 1
-        inputZON_dTS_RFe_fn = str(inputFile[l].strip())
+        inputZON_dSP_RFe_fn = str(inputFile[l].strip())
         l += 1
-        inputZON_dTS_PE_fn = str(inputFile[l].strip())
+        inputZON_dSP_PE_fn = str(inputFile[l].strip())
         l += 1
-        inputZON_dTS_E0_fn = str(inputFile[l].strip())
+        inputZON_dSP_E0_fn = str(inputFile[l].strip())
         l += 1
         line = inputFile[l].split()
         for v in range(NVEG):
@@ -286,7 +286,7 @@ try:
                 perlenmax = int(cMF.nper.split()[1].strip())
             except:
                 raise SystemExit('\nError in nper format of the MODFLOW ini file!\n')
-        cMF.ppMFtime(MM_ws, MF_ws, inputDate_fn, inputZON_dTS_RF_fn, inputZON_dTS_PT_fn, inputZON_dTS_RFe_fn, inputZON_dTS_PE_fn, inputZON_dTS_E0_fn, NMETEO, NVEG, NSOIL)
+        cMF.ppMFtime(MM_ws, MF_ws, inputDate_fn, inputZON_dSP_RF_fn, inputZON_dSP_PT_fn, inputZON_dSP_RFe_fn, inputZON_dSP_PE_fn, inputZON_dSP_E0_fn, NMETEO, NVEG, NSOIL)
 
     print'\n##############'
     print 'MARMITESunsat initialization'
@@ -306,17 +306,17 @@ try:
     ##gridIRR = cMF.MM_PROCESS.inputEsriAscii(grid_fn                  = gridIRR_fn)
 
     # READ input time series and parameters   # missing IRR_fn
-    gridVEGarea, RFzonesTS, E0zonesTS, PTvegzonesTS, RFevegzonesTS, PEsoilzonesTS, inputDate, JD = cMF.MM_PROCESS.inputTS(
+    gridVEGarea, RFzonesSP, E0zonesSP, PTvegzonesSP, RFevegzonesSP, PEsoilzonesSP, inputDate, JD = cMF.MM_PROCESS.inputSP(
                                     NMETEO                   = NMETEO,
                                     NVEG                     = NVEG,
                                     NSOIL                    = NSOIL,
                                     nstp                     = cMF.nstp,
                                     inputDate_fn             = inputDate_fn,
-                                    inputZON_TS_RF_fn        = cMF.inputZON_TS_RF_fn,
-                                    inputZON_TS_PT_fn       = cMF.inputZON_TS_PT_fn,
-                                    inputZON_TS_RFe_fn       = cMF.inputZON_TS_RFe_fn,
-                                    inputZON_TS_PE_fn        = cMF.inputZON_TS_PE_fn,
-                                    inputZON_TS_E0_fn        = cMF.inputZON_TS_E0_fn
+                                    inputZON_SP_RF_fn        = cMF.inputZON_SP_RF_fn,
+                                    inputZON_SP_PT_fn       = cMF.inputZON_SP_PT_fn,
+                                    inputZON_SP_RFe_fn       = cMF.inputZON_SP_RFe_fn,
+                                    inputZON_SP_PE_fn        = cMF.inputZON_SP_PE_fn,
+                                    inputZON_SP_E0_fn        = cMF.inputZON_SP_E0_fn
                                     ) # IRR_fn
 
     # SOIL PARAMETERS
@@ -424,7 +424,7 @@ try:
         else:
             print '\nWARNING!\nThe WEL package should be active to take into account ETg!'
         if cMF.uzf_yn == 1:
-            imfEXF   = cbc_uzf_nam.index('SURFACE LEAKAGE')
+            # imfEXF   = cbc_uzf_nam.index('SURFACE LEAKAGE')
             imfRCH   = cbc_uzf_nam.index('UZF RECHARGE')
         if MMunsat_yn == 0:
             h5_MF.close()
@@ -516,7 +516,7 @@ try:
                 exf_MF = None
                 exf_MF_mem = 'slow'
                 try:
-                    exf_MF = h5_MF['exf4MM'][:,:,:]
+                    exf_MF = h5_MF['exf4MM'][:,:,:]/conv_fact
                     exf_MF_mem = 'fast'
                 except:
                     print '\nRAM memory not sufficient for exfiltration array -> slow computing.'
@@ -535,7 +535,7 @@ try:
                     h_MF       = h5_MF['heads4MM'][tstart_MF:tend_MF,:,:]
                 if cMF.uzf_yn == 1:
                     if exf_MF == None:
-                        exf_MF = h5_MF['exf4MM'][tstart_MF:tend_MF,:,:]
+                        exf_MF = h5_MF['exf4MM'][tstart_MF:tend_MF,:,:]/conv_fact
                 # loop into the grid
                 for i in range(cMF.nrow):
                     for j in range(cMF.ncol):
@@ -567,12 +567,12 @@ try:
                             else:
                                 Su_ini_tmp    = Su_ini_tmp_array[i,j,:]
                                 Ss_ini_tmp    = Ss_ini_tmp_array[i,j]
-                            PEsoilzonesTS_tmp = PEsoilzonesTS[METEOzone_tmp,SOILzone_tmp,tstart_MF:tend_MF]
-                            PTvegzonesTS_tmp = np.zeros((NVEG,tend_MF-tstart_MF), dtype = np.float)
-                            RFevegzonesTS_tmp = np.zeros((NVEG,tend_MF-tstart_MF), dtype = np.float)
+                            PEsoilzonesSP_tmp = PEsoilzonesSP[METEOzone_tmp,SOILzone_tmp,tstart_MF:tend_MF]
+                            PTvegzonesSP_tmp = np.zeros((NVEG,tend_MF-tstart_MF), dtype = np.float)
+                            RFevegzonesSP_tmp = np.zeros((NVEG,tend_MF-tstart_MF), dtype = np.float)
                             for z in range(NVEG):
-                                PTvegzonesTS_tmp[z,:] = PTvegzonesTS[METEOzone_tmp,z,tstart_MF:tend_MF]
-                                RFevegzonesTS_tmp[z,:] = RFevegzonesTS[METEOzone_tmp,z,tstart_MF:tend_MF]
+                                PTvegzonesSP_tmp[z,:] = PTvegzonesSP[METEOzone_tmp,z,tstart_MF:tend_MF]
+                                RFevegzonesSP_tmp[z,:] = RFevegzonesSP[METEOzone_tmp,z,tstart_MF:tend_MF]
                             VEGarea_tmp=np.zeros([NVEG], dtype=np.float)
                             for v in range(NVEG):
                                 VEGarea_tmp[v] = gridVEGarea[v,i,j]
@@ -607,11 +607,11 @@ try:
                                                             Ss_ratio   = 1.12*gridSsw[i,j]/cMF.delr[j],
                                                             HEADS      = h_MF_tmp,
                                                             EXF        = -exf_MF_tmp,
-                                                            RF         = RFzonesTS[METEOzone_tmp][tstart_MF:tend_MF],
-                                                            E0         = E0zonesTS[METEOzone_tmp][tstart_MF:tend_MF],
-                                                            PTveg      = PTvegzonesTS_tmp,
-                                                            RFeveg     = RFevegzonesTS_tmp,
-                                                            PEsoil     = PEsoilzonesTS_tmp,
+                                                            RF         = RFzonesSP[METEOzone_tmp][tstart_MF:tend_MF],
+                                                            E0         = E0zonesSP[METEOzone_tmp][tstart_MF:tend_MF],
+                                                            PTveg      = PTvegzonesSP_tmp,
+                                                            RFeveg     = RFevegzonesSP_tmp,
+                                                            PEsoil     = PEsoilzonesSP_tmp,
                                                             VEGarea    = VEGarea_tmp,
                                                             Zr         = Zr,
                                                             nstp       = cMF.nstp[n],
@@ -824,11 +824,11 @@ except StandardError, e:  #Exception
 
 try:
     del gridVEGarea
-    del RFzonesTS
-    del E0zonesTS
-    del PTvegzonesTS
-    del RFevegzonesTS
-    del PEsoilzonesTS
+    del RFzonesSP
+    del E0zonesSP
+    del PTvegzonesSP
+    del RFevegzonesSP
+    del PEsoilzonesSP
     del gridMETEO
     del gridSOILthick
     del gridSshmax
@@ -913,7 +913,7 @@ try:
         else:
             ctrs_tmp = ctrsMF
         # TODO JD and Date are not correct since h_diff_n is # stress periods and not # of days (same in the plots of MF and MM)
-        MMplot.plotLAYER(TS = h_diff_n, Date = inputDate[h_diff_n], JD = JD[h_diff_n], ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = cMF.nlay, V = V,  cmap = plt.cm.Blues, CBlabel = ('(m)'), msg = 'no value', plt_title = ('_HEADSmaxdiff_ConvLoop'), MM_ws = MM_ws, interval_type = 'arange', interval_diff = (Vmax - Vmin)/nrangeMF, Vmax = Vmax, Vmin = Vmin, contours = ctrs_tmp, ntick = ntick)
+        MMplot.plotLAYER(SP = h_diff_n, Date = inputDate[h_diff_n], JD = JD[h_diff_n], ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = cMF.nlay, V = V,  cmap = plt.cm.Blues, CBlabel = ('(m)'), msg = 'no value', plt_title = ('_HEADSmaxdiff_ConvLoop'), MM_ws = MM_ws, interval_type = 'arange', interval_diff = (Vmax - Vmin)/nrangeMF, Vmax = Vmax, Vmin = Vmin, contours = ctrs_tmp, ntick = ntick)
         del h_diff_n
 
     if plt_out == 1 or plt_out_obs == 1:
@@ -1124,7 +1124,7 @@ try:
                     h5_MF = h5py.File(cMF.h5_MF_fn, 'r')
                     cbc_RCH = h5_MF['RCH_d']
                     for l in range(cMF.nlay):
-                        rch_tmp1 = cbc_RCH[:,:,:,l].sum()/sum(cMF.perlen)/ncell[l]
+                        rch_tmp1 = cbc_RCH[:,:,:,l].sum()/sum(cMF.perlen)/sum(ncell_MM)
                         flxlst_tmp.append(rch_tmp1)
                         rch_tmp += rch_tmp1
                     flxlst.append(-rch_tmp + inf)
@@ -1133,26 +1133,26 @@ try:
                         # GW_RCH
                         flxlst.append(flxlst_tmp[l])
                         cbc_STO = h5_MF['STO_d']
-                        flxlst.append(cbc_STO[:,:,:,l].sum()/sum(cMF.perlen)/ncell[l])
+                        flxlst.append(cbc_STO[:,:,:,l].sum()/sum(cMF.perlen)/sum(ncell_MM))
                         del cbc_STO
                         if cMF.drn_yn == 1:
                             cbc_DRN = h5_MF['DRN_d']
                             if cMF.drncells[l]>0:
-                                flxlst.append(cbc_DRN[:,:,:,l].sum()/sum(cMF.perlen)/ncell[l])
+                                flxlst.append(cbc_DRN[:,:,:,l].sum()/sum(cMF.perlen)/sum(ncell_MM))
                             else:
                                 flxlst.append(0.0)
                             del cbc_DRN
                         if cMF.wel_yn == 1:
                             cbc_WEL = h5_MF['WEL_d']
                             if ncell_MM[l]>0:
-                                flxlst.append(cbc_WEL[:,:,:,l].sum()/sum(cMF.perlen)/ncell[l])
+                                flxlst.append(cbc_WEL[:,:,:,l].sum()/sum(cMF.perlen)/sum(ncell_MM))
                             else:
                                 flxlst.append(0.0)
                             del cbc_WEL
                         if cMF.ghb_yn == 1:
                             cbc_GHB = h5_MF['GHB_d']
                             if cMF.ghbcells > 0:
-                                flxlst.append(cbc_GHB[:,:,:,l].sum()/sum(cMF.perlen)/ncell[l])
+                                flxlst.append(cbc_GHB[:,:,:,l].sum()/sum(cMF.perlen)/sum(ncell_MM))
                             else:
                                 flxlst.append(0.0)
                             del cbc_GHB
@@ -1185,29 +1185,29 @@ try:
                 for l in range(cMF.nlay):
                     h5_MF = h5py.File(cMF.h5_MF_fn, 'r')
                     cbc_RCH = h5_MF['RCH_d']
-                    flxlst.append(cbc_RCH[:,:,:,l].sum()/sum(cMF.perlen)/ncell[l])
+                    flxlst.append(cbc_RCH[:,:,:,l].sum()/sum(cMF.perlen)/sum(ncell_MM))
                     del cbc_RCH
                     cbc_STO = h5_MF['STO_d']
-                    flxlst.append(cbc_STO[:,:,:,l].sum()/sum(cMF.perlen)/ncell[l])
+                    flxlst.append(cbc_STO[:,:,:,l].sum()/sum(cMF.perlen)/sum(ncell_MM))
                     del cbc_STO
                     if cMF.drn_yn == 1:
                         cbc_DRN = h5_MF['DRN_d']
                         if cMF.drncells[l]>0:
-                            flxlst.append(cbc_DRN[:,:,:,l].sum()/sum(cMF.perlen)/ncell[l])
+                            flxlst.append(cbc_DRN[:,:,:,l].sum()/sum(cMF.perlen)/sum(ncell_MM))
                         else:
                             flxlst.append(0.0)
                         del cbc_DRN
                     if cMF.wel_yn == 1:
                         cbc_WEL = h5_MF['WEL_d']
                         if ncell_MM[l]>0:
-                            flxlst.append(cbc_WEL[:,:,:,l].sum()/sum(cMF.perlen)/ncell[l])
+                            flxlst.append(cbc_WEL[:,:,:,l].sum()/sum(cMF.perlen)/sum(ncell_MM))
                         else:
                             flxlst.append(0.0)
                         del cbc_WEL
                     if cMF.ghb_yn == 1:
                         cbc_GHB = h5_MF['GHB_d']
                         if cMF.ghbcells > 0:
-                            flxlst.append(cbc_GHB[:,:,:,l].sum()/sum(cMF.perlen)/ncell[l])
+                            flxlst.append(cbc_GHB[:,:,:,l].sum()/sum(cMF.perlen)/sum(ncell_MM))
                         else:
                             flxlst.append(0.0)
                         del cbc_GHB
@@ -1376,35 +1376,35 @@ try:
             del obs, obs_h, obs_S
 
         if plt_out == 1:
-            TS_lst = []
+            SP_lst = []
             Date_lst = []
             JD_lst = []
-            TS = 0
-            while TS < len(h_MF_m):
-                TS_lst.append(TS)
-                Date_lst.append(inputDate[TS])
-                JD_lst.append(JD[TS])
-                TS += plt_freq
+            SP = 0
+            while SP < len(h_MF_m):
+                SP_lst.append(SP)
+                Date_lst.append(inputDate[SP])
+                JD_lst.append(JD[SP])
+                SP += plt_freq
             if tTgmin < 0:
                 lst = [len(h_MF_m)-1, tRCHmax]
             else:
                 lst = [len(h_MF_m)-1, tRCHmax, tTgmin]
             for e in lst:
-                TS_lst.append(e)
+                SP_lst.append(e)
                 Date_lst.append(inputDate[e])
                 JD_lst.append(JD[e])
 
         # plot MF output
         if plt_out == 1 and isinstance(cMF.h5_MF_fn, str):
-            # plot heads (grid + contours), DRN, etc... at specified TS
+            # plot heads (grid + contours), DRN, etc... at specified SP
             h5_MF = h5py.File(cMF.h5_MF_fn, 'r')
             # plot for selected time step
             t = 0
-            for TS in TS_lst:
+            for SP in SP_lst:
                 # plot heads [m]
                 V = []
                 for L in range(cMF.nlay):
-                    V.append(h_MF_m[TS,:,:,L])
+                    V.append(h_MF_m[SP,:,:,L])
                 if hmaxMF == hminMF:
                     if hmaxMF < 10E-9:
                         hmaxMF = 1.0
@@ -1415,13 +1415,13 @@ try:
                     ctrs_tmp = False
                 else:
                     ctrs_tmp = ctrsMF
-                MMplot.plotLAYER(TS = TS, Date = Date_lst[t], JD = JD_lst[t], ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = cMF.nlay, V = V,  cmap = plt.cm.Blues, CBlabel = 'hydraulic heads elevation (m)', msg = 'DRY', plt_title = 'MF_HEADS', MM_ws = MM_ws, interval_type = 'arange', interval_diff = (hmaxMF - hminMF)/nrangeMF, contours = ctrs_tmp, Vmax = hmaxMF, Vmin = hminMF, ntick = ntick)
+                MMplot.plotLAYER(SP = SP, Date = Date_lst[t], JD = JD_lst[t], ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = cMF.nlay, V = V,  cmap = plt.cm.Blues, CBlabel = 'hydraulic heads elevation (m)', msg = 'DRY', plt_title = 'MF_HEADS', MM_ws = MM_ws, interval_type = 'arange', interval_diff = (hmaxMF - hminMF)/nrangeMF, contours = ctrs_tmp, Vmax = hmaxMF, Vmin = hminMF, ntick = ntick)
                 # plot GW drainage [mm]
                 if cMF.drn_yn == 1:
                     V = []
                     cbc_DRN = h5_MF['DRN_d']
                     for L in range(cMF.nlay):
-                        V.append(np.ma.masked_array(cbc_DRN[TS,:,:,L], mask[L])*(-1.0))
+                        V.append(np.ma.masked_array(cbc_DRN[SP,:,:,L], mask[L])*(-1.0))
                     DRNmax_tmp = np.ma.max(V)
                     DRNmin_tmp = np.ma.min(V)
                     if DRNmax_tmp == DRNmin_tmp:
@@ -1434,12 +1434,12 @@ try:
                         ctrs_tmp = False
                     else:
                         ctrs_tmp = ctrsMF
-                    MMplot.plotLAYER(TS = TS, Date = Date_lst[t], JD = JD_lst[t], ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = cMF.nlay, V = V,  cmap = plt.cm.Blues, CBlabel = 'groundwater drainage (mm/day)', msg = '- no drainage', plt_title = 'MF_DRN', MM_ws = MM_ws, interval_type = 'linspace', interval_num = 5, Vmin = DRNmin_tmp, contours = ctrs_tmp, Vmax = DRNmax_tmp, fmt='%.3G', ntick = ntick)
+                    MMplot.plotLAYER(SP = SP, Date = Date_lst[t], JD = JD_lst[t], ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = cMF.nlay, V = V,  cmap = plt.cm.Blues, CBlabel = 'groundwater drainage (mm/day)', msg = '- no drainage', plt_title = 'MF_DRN', MM_ws = MM_ws, interval_type = 'linspace', interval_num = 5, Vmin = DRNmin_tmp, contours = ctrs_tmp, Vmax = DRNmax_tmp, fmt='%.3G', ntick = ntick)
                 # plot GW RCH [mm]
                 V = []
                 cbc_RCH = h5_MF['RCH_d']
                 for L in range(cMF.nlay):
-                    V.append(np.ma.masked_array(cbc_RCH[TS,:,:,L], mask[L]))
+                    V.append(np.ma.masked_array(cbc_RCH[SP,:,:,L], mask[L]))
                 RCHmax_tmp = np.ma.max(V)
                 RCHmin_tmp = np.ma.min(V)
                 if RCHmax_tmp == RCHmin_tmp:
@@ -1452,7 +1452,7 @@ try:
                     ctrs_tmp = False
                 else:
                     ctrs_tmp = ctrsMF
-                MMplot.plotLAYER(TS = TS, Date = Date_lst[t], JD = JD_lst[t], ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = cMF.nlay, V = V,  cmap = plt.cm.Blues, CBlabel = 'groundwater recharge (mm/day)', msg = '- no flux', plt_title = 'MF_RCH', MM_ws = MM_ws, interval_type = 'linspace', interval_num = 5, Vmin = RCHmin_tmp, contours = ctrs_tmp, Vmax = RCHmax_tmp, fmt='%.3G', ntick = ntick)
+                MMplot.plotLAYER(SP = SP, Date = Date_lst[t], JD = JD_lst[t], ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = cMF.nlay, V = V,  cmap = plt.cm.Blues, CBlabel = 'groundwater recharge (mm/day)', msg = '- no flux', plt_title = 'MF_RCH', MM_ws = MM_ws, interval_type = 'linspace', interval_num = 5, Vmin = RCHmin_tmp, contours = ctrs_tmp, Vmax = RCHmax_tmp, fmt='%.3G', ntick = ntick)
                 t += 1
                 del V
             del t
@@ -1474,7 +1474,7 @@ try:
                     ctrs_tmp = False
                 else:
                     ctrs_tmp = ctrsMF
-                MMplot.plotLAYER(TS = 'NA', Date = 'NA', JD = 'NA', ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = cMF.nlay, V = V,  cmap = plt.cm.Blues, CBlabel = 'groundwater drainage (mm/day)', msg = '- no drainage', plt_title = 'MF_average_DRN', MM_ws = MM_ws, interval_type = 'arange', interval_diff = (DRNmax_tmp - DRNmin_tmp)/nrangeMM, Vmax = DRNmax_tmp, Vmin = DRNmin_tmp, contours = ctrs_tmp, ntick = ntick)
+                MMplot.plotLAYER(SP = 'NA', Date = 'NA', JD = 'NA', ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = cMF.nlay, V = V,  cmap = plt.cm.Blues, CBlabel = 'groundwater drainage (mm/day)', msg = '- no drainage', plt_title = 'MF_average_DRN', MM_ws = MM_ws, interval_type = 'arange', interval_diff = (DRNmax_tmp - DRNmin_tmp)/nrangeMM, Vmax = DRNmax_tmp, Vmin = DRNmin_tmp, contours = ctrs_tmp, ntick = ntick)
             # plot GW RCH [mm]
             V = []
             for L in range(cMF.nlay):
@@ -1491,7 +1491,7 @@ try:
                 ctrs_tmp = False
             else:
                 ctrs_tmp = ctrsMF
-            MMplot.plotLAYER(TS = 'NA', Date = 'NA', JD = 'NA', ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = cMF.nlay, V = V,  cmap = plt.cm.Blues, CBlabel = 'groundwater recharge (mm/day)', msg = '- no flux', plt_title = 'MF_average_RCH', MM_ws = MM_ws, interval_type = 'arange', interval_diff = (RCHmax_tmp - RCHmin_tmp)/nrangeMM, Vmax = RCHmax_tmp, Vmin = RCHmin_tmp, contours = ctrs_tmp, ntick = ntick)
+            MMplot.plotLAYER(SP = 'NA', Date = 'NA', JD = 'NA', ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = cMF.nlay, V = V,  cmap = plt.cm.Blues, CBlabel = 'groundwater recharge (mm/day)', msg = '- no flux', plt_title = 'MF_average_RCH', MM_ws = MM_ws, interval_type = 'arange', interval_diff = (RCHmax_tmp - RCHmin_tmp)/nrangeMM, Vmax = RCHmax_tmp, Vmin = RCHmin_tmp, contours = ctrs_tmp, ntick = ntick)
             h5_MF.close()
             del V, cbc_RCH
             if cMF.drn_yn == 1:
@@ -1527,12 +1527,12 @@ try:
                     i_lbl = '$\Delta$Ss'
                 else:
                     i_lbl = i
-                MMplot.plotLAYER(TS = 'NA', Date = 'NA', JD = 'NA', ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = 1, V = V,  cmap = plt.cm.Blues, CBlabel = (i_lbl + ' (mm/day)'), msg = 'no flux', plt_title = ('MM_average_' + i), MM_ws = MM_ws, interval_type = 'arange', interval_diff = (Vmax - Vmin)/nrangeMM, Vmax = Vmax, Vmin = Vmin, contours = ctrs_tmp, ntick = ntick)
+                MMplot.plotLAYER(SP = 'NA', Date = 'NA', JD = 'NA', ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = 1, V = V,  cmap = plt.cm.Blues, CBlabel = (i_lbl + ' (mm/day)'), msg = 'no flux', plt_title = ('MM_average_' + i), MM_ws = MM_ws, interval_type = 'arange', interval_diff = (Vmax - Vmin)/nrangeMM, Vmax = Vmax, Vmin = Vmin, contours = ctrs_tmp, ntick = ntick)
                 del V
                 # plot for selected time step
                 t = 0
-                for TS in TS_lst:
-                    V = [np.ma.masked_values(MM[TS,:,:], cMF.hnoflo, atol = 0.09)]
+                for SP in SP_lst:
+                    V = [np.ma.masked_values(MM[SP,:,:], cMF.hnoflo, atol = 0.09)]
                     Vmax = np.ma.max(V[0]) #float(np.ceil(np.ma.max(V)))
                     Vmin = np.ma.min(V[0]) #float(np.floor(np.ma.min(V)))
                     if Vmax == Vmin:
@@ -1545,7 +1545,7 @@ try:
                         ctrs_tmp = False
                     else:
                         ctrs_tmp = ctrsMM
-                    MMplot.plotLAYER(TS = TS, Date = Date_lst[t], JD = JD_lst[t], ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = 1, V = V,  cmap = plt.cm.Blues, CBlabel = (i + ' (mm/day)'), msg = 'no flux', plt_title = ('MM_'+i), MM_ws = MM_ws, interval_type = 'arange', interval_diff = (Vmax - Vmin)/nrangeMM, Vmax = Vmax, Vmin = Vmin, contours = ctrs_tmp, ntick = ntick)
+                    MMplot.plotLAYER(SP = SP, Date = Date_lst[t], JD = JD_lst[t], ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = 1, V = V,  cmap = plt.cm.Blues, CBlabel = (i + ' (mm/day)'), msg = 'no flux', plt_title = ('MM_'+i), MM_ws = MM_ws, interval_type = 'arange', interval_diff = (Vmax - Vmin)/nrangeMM, Vmax = Vmax, Vmin = Vmin, contours = ctrs_tmp, ntick = ntick)
                     t += 1
                 del V, MM, t
             flxlbl = ['Eu', 'Tu','Rp']
@@ -1579,19 +1579,19 @@ try:
                     ctrs_tmp = False
                 else:
                     ctrs_tmp = ctrsMM
-                MMplot.plotLAYER(TS = 'NA', Date = 'NA', JD = 'NA', ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = 1, V = V,  cmap = plt.cm.Blues, CBlabel = (i + ' (mm/day)'), msg = 'no flux', plt_title = ('MM_'+ 'average_' + i), MM_ws = MM_ws, interval_type = 'arange', interval_diff = (Vmax - Vmin)/nrangeMM, Vmax = Vmax, Vmin = Vmin, contours = ctrs_tmp, ntick = ntick)
+                MMplot.plotLAYER(SP = 'NA', Date = 'NA', JD = 'NA', ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = 1, V = V,  cmap = plt.cm.Blues, CBlabel = (i + ' (mm/day)'), msg = 'no flux', plt_title = ('MM_'+ 'average_' + i), MM_ws = MM_ws, interval_type = 'arange', interval_diff = (Vmax - Vmin)/nrangeMM, Vmax = Vmax, Vmin = Vmin, contours = ctrs_tmp, ntick = ntick)
                 del V
                 # plot for selected time step
                 t = 0
-                for TS in TS_lst:
+                for SP in SP_lst:
                     h5_MM = h5py.File(h5_MM_fn, 'r')
                     if i1 != 'iRp':
                         V = [np.zeros([cMF.nrow,cMF.ncol])]
                         for l in range(_nslmax):
-                            MM = h5_MM['MM_S'][TS,:,:,l,index_S.get(i1)]
+                            MM = h5_MM['MM_S'][SP,:,:,l,index_S.get(i1)]
                             V += np.ma.masked_values(MM, cMF.hnoflo, atol = 0.09)
                     else:
-                        MM = h5_MM['MM_S'][TS,:,:,:,index_S.get(i1)]
+                        MM = h5_MM['MM_S'][SP,:,:,:,index_S.get(i1)]
                         V = [np.ma.masked_values(MM[:,:,-1], cMF.hnoflo, atol = 0.09)]
                     h5_MM.close()
                     Vmax = np.ma.max(V) #float(np.ceil(np.ma.max(V)))
@@ -1606,10 +1606,10 @@ try:
                         ctrs_tmp = False
                     else:
                         ctrs_tmp = ctrsMM
-                    MMplot.plotLAYER(TS = TS, Date = Date_lst[t], JD = JD_lst[t], ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = 1, V = V,  cmap = plt.cm.Blues, CBlabel = (i + ' (mm/day)'), msg = 'no flux', plt_title = ('MM_'+i), MM_ws = MM_ws, interval_type = 'arange', interval_diff = (Vmax - Vmin)/nrangeMM, Vmax = Vmax, Vmin = Vmin, contours = ctrs_tmp, ntick = ntick)
+                    MMplot.plotLAYER(SP = SP, Date = Date_lst[t], JD = JD_lst[t], ncol = cMF.ncol, nrow = cMF.nrow, nlay = cMF.nlay, nplot = 1, V = V,  cmap = plt.cm.Blues, CBlabel = (i + ' (mm/day)'), msg = 'no flux', plt_title = ('MM_'+i), MM_ws = MM_ws, interval_type = 'arange', interval_diff = (Vmax - Vmin)/nrangeMM, Vmax = Vmax, Vmin = Vmin, contours = ctrs_tmp, ntick = ntick)
                     t += 1
                 del V, MM, t
-            del TS_lst, flxlbl, i, i1, h_diff_surf
+            del SP_lst, flxlbl, i, i1, h_diff_surf
         del gridSOIL, inputDate
         del hmaxMF, hminMF, hmin, hdiff, cbcmax, cbcmin
         if cMF.drn_yn == 1:

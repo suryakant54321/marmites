@@ -416,7 +416,7 @@ class UNSAT:
                 dtwt[t] = sum(Tl)
                 HEADS_tmp = BotSoilLay[nsl-1]
 
-            # for the first TS, S_ini is expressed in % and has to be converted in mm
+            # for the first SP, S_ini is expressed in % and has to be converted in mm
             if n == 0 and t == 0:
                 Su_ini = Su_ini * Tl
 
