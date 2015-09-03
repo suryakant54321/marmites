@@ -1,0 +1,1 @@
+FloPy is a library of Python scripts to run MODFLOW, MT3D, SWI, Seawat and friends
